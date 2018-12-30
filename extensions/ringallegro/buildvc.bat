@@ -1,0 +1,1 @@
+buildvc_allegro5.2.4.bat
