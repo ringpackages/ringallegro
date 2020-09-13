@@ -5,6 +5,15 @@
 RingAllegro Functions Reference
 ===============================
 
+
+Introduction
+============
+
+In this chapter we have a list of the supported functions by this extension 
+
+Reference
+=========
+
 * </funcstart>
 * void al_exit(void)
 * void al_run_main(void)
