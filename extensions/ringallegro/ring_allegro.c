@@ -1370,7 +1370,7 @@ RING_FUNC(ring_al_set_display_icons)
 		RING_API_ERROR(RING_API_BADPARATYPE);
 		return ;
 	}
-	al_set_display_icons((ALLEGRO_DISPLAY *) RING_API_GETCPOINTER(1,"ALLEGRO_DISPLAY"), (int ) RING_API_GETNUMBER(2),(ALLEGRO_BITMAP *) RING_API_GETCPOINTER(3,"ALLEGRO_BITMAP"));
+	al_set_display_icons((ALLEGRO_DISPLAY *) RING_API_GETCPOINTER(1,"ALLEGRO_DISPLAY"), (int ) RING_API_GETNUMBER(2),(ALLEGRO_BITMAP **) RING_API_GETCPOINTER2POINTER(3,"ALLEGRO_BITMAP"));
 }
 
 
@@ -5705,9 +5705,11 @@ RING_FUNC(ring_al_path_cstr)
 		RING_API_ERROR(RING_API_BADPARATYPE);
 		return ;
 	}
-	RING_API_RETSTRING(al_path_cstr((ALLEGRO_PATH *) RING_API_GETCPOINTER(1,"ALLEGRO_PATH"),* (char  *) RING_API_GETCPOINTER(2,"char")));
-	if (RING_API_ISCPOINTERNOTASSIGNED(2))
-		ring_state_free(((VM *) pPointer)->pRingState,RING_API_GETCPOINTER(2,"char"));
+	if ( ! RING_API_ISNUMBER(2) ) {
+		RING_API_ERROR(RING_API_BADPARATYPE);
+		return ;
+	}
+	RING_API_RETSTRING(al_path_cstr((ALLEGRO_PATH *) RING_API_GETCPOINTER(1,"ALLEGRO_PATH"), (char ) RING_API_GETNUMBER(2)));
 }
 
 
@@ -5909,6 +5911,11 @@ void *al_func_thread(ALLEGRO_THREAD *thread, void *pPointer)
 	return NULL;
 }
 
+void *al_func_detached_thread(void *pPointer)
+{
+	return al_func_thread(NULL,pPointer);
+}
+
 RING_FUNC(ring_al_create_thread)
 {
 	ALLEGRO_THREAD *pThread;
@@ -5925,10 +5932,8 @@ RING_FUNC(ring_al_create_thread)
 	ring_list_addstring(pList,RING_API_GETSTRING(1));
 	ring_list_addpointer(pList,pPointer);
 	ring_vm_mutexfunctions((VM *) pPointer,al_create_mutex,al_lock_mutex,al_unlock_mutex,al_destroy_mutex);
-	RING_API_BEFORENEWTHREAD ;
 	pThread = al_create_thread(al_func_thread, pList);
 	al_start_thread(pThread);
-	RING_API_AFTERNEWTHREAD ;
 	RING_API_RETCPOINTER(pThread,"ALLEGRO_THREAD");	
 }
 
@@ -5947,7 +5952,7 @@ RING_FUNC(ring_al_run_detached_thread)
 	ring_list_addstring(pList,RING_API_GETSTRING(1));
 	ring_list_addpointer(pList,pPointer);
 	ring_vm_mutexfunctions((VM *) pPointer,al_create_mutex,al_lock_mutex,al_unlock_mutex,al_destroy_mutex);
-	al_run_detached_thread(al_func_thread, pList);
+	al_run_detached_thread(al_func_detached_thread, pList);
 }
 
 RING_FUNC(ring_al_start_thread)
@@ -7780,13 +7785,15 @@ RING_FUNC(ring_al_utf8_encode)
 		RING_API_ERROR(RING_API_MISS2PARA);
 		return ;
 	}
+	if ( ! RING_API_ISSTRING(1) ) {
+		RING_API_ERROR(RING_API_BADPARATYPE);
+		return ;
+	}
 	if ( ! RING_API_ISNUMBER(2) ) {
 		RING_API_ERROR(RING_API_BADPARATYPE);
 		return ;
 	}
-	RING_API_RETNUMBER(al_utf8_encode(* (char  *) RING_API_GETCPOINTER(1,"char"), (int32_t ) RING_API_GETNUMBER(2)));
-	if (RING_API_ISCPOINTERNOTASSIGNED(1))
-		ring_state_free(((VM *) pPointer)->pRingState,RING_API_GETCPOINTER(1,"char"));
+	RING_API_RETNUMBER(al_utf8_encode(RING_API_GETSTRING(1), (int32_t ) RING_API_GETNUMBER(2)));
 }
 
 
@@ -10778,9 +10785,12 @@ RING_FUNC(ring_al_grab_font_from_bitmap)
 		RING_API_ERROR(RING_API_BADPARATYPE);
 		return ;
 	}
-	RING_API_RETCPOINTER(al_grab_font_from_bitmap((ALLEGRO_BITMAP *) RING_API_GETCPOINTER(1,"ALLEGRO_BITMAP"), (int ) RING_API_GETNUMBER(2),* (const int  *) RING_API_GETCPOINTER(3,"const int")),"ALLEGRO_FONT");
-	if (RING_API_ISCPOINTERNOTASSIGNED(3))
-		ring_state_free(((VM *) pPointer)->pRingState,RING_API_GETCPOINTER(3,"int"));
+	if ( ! RING_API_ISSTRING(3) ) {
+		RING_API_ERROR(RING_API_BADPARATYPE);
+		return ;
+	}
+	RING_API_RETCPOINTER(al_grab_font_from_bitmap((ALLEGRO_BITMAP *) RING_API_GETCPOINTER(1,"ALLEGRO_BITMAP"), (int ) RING_API_GETNUMBER(2),RING_API_GETINTPOINTER(3)),"ALLEGRO_FONT");
+	RING_API_ACCEPTINTVALUE(3) ;
 }
 
 
